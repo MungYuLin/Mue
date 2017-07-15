@@ -1,0 +1,710 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="关于Entity Framework在MVC架构以及在项目中使用小结。 创建sqlproj项目在项目中增加sqlproj项目，增加相关表或视图后，发布到数据库； 创建Entity项目新建一个Entity项目，创建实体数据模型，会自动把发布的数据库表映射到实体类中； Context类创建一个在项目中可以通用的BaseDBContext类 123456789101112public class Bas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【NET】EF总结">
+<meta property="og:url" content="https://mungyulin.github.io/2017/02/18/2017-02-17-EntityFramework简单使用/index.html">
+<meta property="og:site_name" content="Mandag&#39;s Blog">
+<meta property="og:description" content="关于Entity Framework在MVC架构以及在项目中使用小结。 创建sqlproj项目在项目中增加sqlproj项目，增加相关表或视图后，发布到数据库； 创建Entity项目新建一个Entity项目，创建实体数据模型，会自动把发布的数据库表映射到实体类中； Context类创建一个在项目中可以通用的BaseDBContext类 123456789101112public class Bas">
+<meta property="og:updated_time" content="2017-07-09T13:16:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【NET】EF总结">
+<meta name="twitter:description" content="关于Entity Framework在MVC架构以及在项目中使用小结。 创建sqlproj项目在项目中增加sqlproj项目，增加相关表或视图后，发布到数据库； 创建Entity项目新建一个Entity项目，创建实体数据模型，会自动把发布的数据库表映射到实体类中； Context类创建一个在项目中可以通用的BaseDBContext类 123456789101112public class Bas">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'BI09G1CGTO',
+      apiKey: '79af29965237da45de18b4a83aeea996',
+      indexName: 'MandagName',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字进行搜索","hits_empty":"找不到关于“ ${query} ”的文章","hits_stats":"共找到 ${hits} 篇文章，花了 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mungyulin.github.io/2017/02/18/2017-02-17-EntityFramework简单使用/"/>
+
+
+
+
+
+  <title> 【NET】EF总结 | Mandag's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mandag's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学会生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mungyulin.github.io/2017/02/18/2017-02-17-EntityFramework简单使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mandag">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/icon.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mandag's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                【NET】EF总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-18T12:44:00+08:00">
+                2017-02-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>关于Entity Framework在MVC架构以及在项目中使用小结。</p>
+<h4 id="创建sqlproj项目"><a href="#创建sqlproj项目" class="headerlink" title="创建sqlproj项目"></a>创建sqlproj项目</h4><p>在项目中增加sqlproj项目，增加相关表或视图后，发布到数据库；</p>
+<h4 id="创建Entity项目"><a href="#创建Entity项目" class="headerlink" title="创建Entity项目"></a>创建Entity项目</h4><p>新建一个Entity项目，创建实体数据模型，会自动把发布的数据库表映射到实体类中；</p>
+<h4 id="Context类"><a href="#Context类" class="headerlink" title="Context类"></a>Context类</h4><p>创建一个在项目中可以通用的BaseDBContext类</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">BaseDBContext</span> : <span class="title">DbContext</span></div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BaseDBContext</span>(<span class="params"></span>)</span></div><div class="line">        : <span class="title">base</span>(<span class="params"><span class="string">"name=HPDBEntities"</span></span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">this</span>.Configuration.AutoDetectChangesEnabled = <span class="literal">false</span>;</div><div class="line">        <span class="keyword">this</span>.Configuration.ValidateOnSaveEnabled = <span class="literal">false</span>;</div><div class="line">        <span class="keyword">this</span>.Configuration.LazyLoadingEnabled = <span class="literal">false</span>;</div><div class="line">        <span class="keyword">this</span>.Configuration.ProxyCreationEnabled = <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="全局通用的操作类"><a href="#全局通用的操作类" class="headerlink" title="全局通用的操作类"></a>全局通用的操作类</h4><p>有了Context类后，我们需要一个对全局通用的操作类EFHelper</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">public class EFHelper&lt;TEntity&gt; where TEntity : class</div><div class="line">&#123;</div><div class="line">    private BaseDBContext dbContext = new BaseDBContext();</div><div class="line"></div><div class="line">    public int Insert(TEntity entity)</div><div class="line">    &#123;</div><div class="line">        dbContext.Entry&lt;TEntity&gt;(entity).State = EntityState.Added;</div><div class="line">        return dbContext.SaveChanges();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public int Insert(List&lt;TEntity&gt; entitys)</div><div class="line">    &#123;</div><div class="line">        foreach (var entity in entitys)</div><div class="line">        &#123;</div><div class="line">            dbContext.Entry&lt;TEntity&gt;(entity).State = EntityState.Added;</div><div class="line">        &#125;</div><div class="line">        return dbContext.SaveChanges();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public int Update(TEntity entity)</div><div class="line">    &#123;</div><div class="line">        dbContext.Set&lt;TEntity&gt;().Attach(entity);</div><div class="line">        PropertyInfo[] props = entity.GetType().GetProperties();</div><div class="line">        foreach (PropertyInfo prop in props)</div><div class="line">        &#123;</div><div class="line">            if (prop.GetValue(entity, null) != null)</div><div class="line">            &#123;</div><div class="line">                if (prop.GetValue(entity, null).ToString() == "&amp;nbsp;")</div><div class="line">                    dbContext.Entry(entity).Property(prop.Name).CurrentValue = null;</div><div class="line">                dbContext.Entry(entity).Property(prop.Name).IsModified = true;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        return dbContext.SaveChanges();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public int Delete(TEntity entity)</div><div class="line">    &#123;</div><div class="line">        dbContext.Set&lt;TEntity&gt;().Attach(entity);</div><div class="line">        dbContext.Entry&lt;TEntity&gt;(entity).State = EntityState.Deleted;</div><div class="line">        return dbContext.SaveChanges();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public int Delete(Expression&lt;Func&lt;TEntity, bool&gt;&gt; predicate)</div><div class="line">    &#123;</div><div class="line">        var entitys = dbContext.Set&lt;TEntity&gt;().Where(predicate).ToList();</div><div class="line">        entitys.ForEach(m =&gt; dbContext.Entry&lt;TEntity&gt;(m).State = EntityState.Deleted);</div><div class="line">        return dbContext.SaveChanges();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public TEntity FindEntity(object keyValue)</div><div class="line">    &#123;</div><div class="line">        return dbContext.Set&lt;TEntity&gt;().Find(keyValue);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public TEntity FindEntity(Expression&lt;Func&lt;TEntity, bool&gt;&gt; where)</div><div class="line">    &#123;</div><div class="line">        return dbContext.Set&lt;TEntity&gt;().FirstOrDefault(where);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public List&lt;TEntity&gt; FindList()</div><div class="line">    &#123;</div><div class="line">        return dbContext.Set&lt;TEntity&gt;().ToList&lt;TEntity&gt;();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public IQueryable&lt;TEntity&gt; IQueryable()</div><div class="line">    &#123;</div><div class="line">        return dbContext.Set&lt;TEntity&gt;();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public IEnumerable&lt;TEntity&gt; IQueryable(Expression&lt;Func&lt;TEntity, bool&gt;&gt; where)</div><div class="line">    &#123;</div><div class="line">        return dbContext.Set&lt;TEntity&gt;().Where(where);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public IEnumerable&lt;TEntity&gt; IQueryable&lt;TKey&gt;(Expression&lt;Func&lt;TEntity, TKey&gt;&gt; orderBy, Pagination pagination)</div><div class="line">    &#123;</div><div class="line">        var tempData = dbContext.Set&lt;TEntity&gt;().AsQueryable();</div><div class="line">        if (!pagination.sort.IsEmpty() &amp;&amp; pagination.sort.Equals("asc"))</div><div class="line">        &#123;</div><div class="line">            tempData = tempData.OrderBy(orderBy);</div><div class="line">        &#125;</div><div class="line">        else</div><div class="line">        &#123;</div><div class="line">            tempData = tempData.OrderByDescending(orderBy);</div><div class="line">        &#125;</div><div class="line">        pagination.records = tempData.Count();</div><div class="line">        tempData = tempData.Skip&lt;TEntity&gt;(pagination.offset).Take&lt;TEntity&gt;(pagination.rows).AsQueryable();</div><div class="line">        return tempData.ToList();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public IEnumerable&lt;TEntity&gt; IQueryable&lt;TKey&gt;(Expression&lt;Func&lt;TEntity, bool&gt;&gt; where, Expression&lt;Func&lt;TEntity, TKey&gt;&gt; orderBy, Pagination pagination)</div><div class="line">    &#123;</div><div class="line">        var tempData = dbContext.Set&lt;TEntity&gt;().AsQueryable();</div><div class="line">        if (!pagination.sort.IsEmpty() &amp;&amp; pagination.sort.Equals("asc"))</div><div class="line">        &#123;</div><div class="line">            tempData = tempData.OrderBy(orderBy);</div><div class="line">        &#125;</div><div class="line">        else</div><div class="line">        &#123;</div><div class="line">            tempData = tempData.OrderByDescending(orderBy);</div><div class="line">        &#125;</div><div class="line">        tempData = tempData.Where(where).AsQueryable();</div><div class="line">        pagination.records = tempData.Count();</div><div class="line">        tempData = tempData.Skip&lt;TEntity&gt;(pagination.offset).Take&lt;TEntity&gt;(pagination.rows).AsQueryable();</div><div class="line">        return tempData.ToList();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上可以通用在整个项目的基本操作类</p>
+<h4 id="实际使用"><a href="#实际使用" class="headerlink" title="实际使用"></a>实际使用</h4><p>创建了操作类后，就可以直接在项目中进行操作</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">private</span> EFHelper&lt;Entity.T_User&gt; helper = <span class="keyword">new</span> EFHelper&lt;Entity.T_User&gt;();</div><div class="line"></div><div class="line"><span class="comment">// 获取</span></div><div class="line"><span class="keyword">var</span> en = helper.FindEntity(id); <span class="comment">// 主键直接获取</span></div><div class="line"><span class="keyword">var</span> en = helper.FindEntity(m =&gt; m.Name.Equals(name, StringComparison.OrdinalIgnoreCase)); <span class="comment">// 不为主键进行linq进行where</span></div><div class="line"></div><div class="line"><span class="comment">// 新增</span></div><div class="line"><span class="keyword">var</span> en = <span class="keyword">new</span> Entity.T_User() &#123; Id = Guid.NewGuid(), Name = name &#125;;</div><div class="line">helper.Insert(en);</div><div class="line"></div><div class="line"><span class="comment">// 修改</span></div><div class="line"><span class="keyword">var</span> result = helper.FindEntity(id);</div><div class="line"><span class="keyword">if</span> (result != <span class="literal">null</span>)</div><div class="line">&#123;</div><div class="line">    result.Name = name;</div><div class="line">    helper.Update(result);</div><div class="line">&#125;;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// 删除</span></div><div class="line"><span class="keyword">var</span> result = helper.FindEntity(userId);</div><div class="line"><span class="keyword">if</span> (result != <span class="literal">null</span>)</div><div class="line">&#123;</div><div class="line">    helper.Delete(result);</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 查询</span></div><div class="line"><span class="keyword">var</span> list = helper.IQueryable(m =&gt; m.Name.Contains(keyword));</div></pre></td></tr></table></figure>
+<p>如果需要在复杂的地方进行操作，如下</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">var</span> query = helper.IQueryable(m =&gt; m.HasDelete.HasValue &amp; !m.HasDelete.Value);</div><div class="line"><span class="keyword">if</span> (!keyword.IsEmpty())</div><div class="line">&#123;</div><div class="line">    query = query.Where(m =&gt; m.Name.Contains(keyword)).AsQueryable();</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> tempData = query.OrderBy(m =&gt; m.Sorting).ToList()</div><div class="line">                    .Join(helper_role.IQueryable(), m =&gt; m.RoleId, c =&gt; c.Id, (m, c) =&gt; <span class="keyword">new</span></div><div class="line">                    &#123;</div><div class="line">                        m.Id,</div><div class="line">                        m.Name</div><div class="line">                        RoleId = c.Id</div><div class="line">                        RoleName = c.Name</div><div class="line">                    &#125;)</div><div class="line">                    .AsQueryable();</div><div class="line">pagination.records = tempData.Count();</div><div class="line"><span class="keyword">var</span> list = tempData.Limit(pagination);</div></pre></td></tr></table></figure>
+<p>如果，表连接或条件较复杂，推荐直接写视图，通过操作视图得到数据。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/12/2017-02-12-SiteMap站点文件/" rel="next" title="【NET】生成SiteMap网站地图">
+                <i class="fa fa-chevron-left"></i> 【NET】生成SiteMap网站地图
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/24/2017-02-17-递归获取SKU路径/" rel="prev" title="【NET】设置SKU路径">
+                【NET】设置SKU路径 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.jpg"
+               alt="Mandag" />
+          <p class="site-author-name" itemprop="name">Mandag</p>
+           
+              <p class="site-description motion-element" itemprop="description">动漫，美剧，电影爱好者</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建sqlproj项目"><span class="nav-number">1.</span> <span class="nav-text">创建sqlproj项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建Entity项目"><span class="nav-number">2.</span> <span class="nav-text">创建Entity项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Context类"><span class="nav-number">3.</span> <span class="nav-text">Context类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全局通用的操作类"><span class="nav-number">4.</span> <span class="nav-text">全局通用的操作类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实际使用"><span class="nav-number">5.</span> <span class="nav-text">实际使用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mandag</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

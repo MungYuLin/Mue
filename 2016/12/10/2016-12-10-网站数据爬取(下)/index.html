@@ -1,0 +1,681 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="接昨天的 采集内容页，要考虑两点，一个是是否需要登录才能浏览，还有一個是有些网站有限制流量的，超过了就看不了所以需要存着网站的cookie和当前采集的次数 123456789101112Dictionary&amp;lt;string, long&amp;gt; siteTakeCount = new Dictionary&amp;lt;string, long&amp;gt;();Dictionary&amp;lt;string, S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【NET】网站数据爬取 上">
+<meta property="og:url" content="https://mungyulin.github.io/2016/12/10/2016-12-10-网站数据爬取(下)/index.html">
+<meta property="og:site_name" content="Mandag&#39;s Blog">
+<meta property="og:description" content="接昨天的 采集内容页，要考虑两点，一个是是否需要登录才能浏览，还有一個是有些网站有限制流量的，超过了就看不了所以需要存着网站的cookie和当前采集的次数 123456789101112Dictionary&amp;lt;string, long&amp;gt; siteTakeCount = new Dictionary&amp;lt;string, long&amp;gt;();Dictionary&amp;lt;string, S">
+<meta property="og:updated_time" content="2017-06-25T06:14:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【NET】网站数据爬取 上">
+<meta name="twitter:description" content="接昨天的 采集内容页，要考虑两点，一个是是否需要登录才能浏览，还有一個是有些网站有限制流量的，超过了就看不了所以需要存着网站的cookie和当前采集的次数 123456789101112Dictionary&amp;lt;string, long&amp;gt; siteTakeCount = new Dictionary&amp;lt;string, long&amp;gt;();Dictionary&amp;lt;string, S">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'BI09G1CGTO',
+      apiKey: '79af29965237da45de18b4a83aeea996',
+      indexName: 'MandagName',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字进行搜索","hits_empty":"找不到关于“ ${query} ”的文章","hits_stats":"共找到 ${hits} 篇文章，花了 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mungyulin.github.io/2016/12/10/2016-12-10-网站数据爬取(下)/"/>
+
+
+
+
+
+  <title> 【NET】网站数据爬取 上 | Mandag's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mandag's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学会生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mungyulin.github.io/2016/12/10/2016-12-10-网站数据爬取(下)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mandag">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/icon.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mandag's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                【NET】网站数据爬取 上
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-10T19:58:00+08:00">
+                2016-12-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>接昨天的</p>
+<p>采集内容页，要考虑两点，一个是是否需要登录才能浏览，还有一個是有些网站有限制流量的，超过了就看不了<br>所以需要存着网站的cookie和当前采集的次数</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">Dictionary&lt;<span class="keyword">string</span>, <span class="keyword">long</span>&gt; siteTakeCount = <span class="keyword">new</span> Dictionary&lt;<span class="keyword">string</span>, <span class="keyword">long</span>&gt;();</div><div class="line">Dictionary&lt;<span class="keyword">string</span>, System.Net.CookieContainer&gt; siteTakeCookie = <span class="keyword">new</span> Dictionary&lt;<span class="keyword">string</span>, System.Net.CookieContainer&gt;();</div><div class="line"><span class="keyword">var</span> result = DataHandled.GetStayTakeTask();</div><div class="line"><span class="keyword">if</span> (ConfigManager.CollectTasks != <span class="literal">null</span> &amp;&amp; ConfigManager.CollectTasks.Any())</div><div class="line">&#123;</div><div class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> item <span class="keyword">in</span> ConfigManager.CollectTasks)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">long</span> count = item.PageContent.CollectCountMax &gt; <span class="number">0</span> ? item.PageContent.CollectCountMax : <span class="number">-1</span>;</div><div class="line">        siteTakeCount.Add(item.TaskName, count);</div><div class="line">        siteTakeCookie.Add(item.TaskName, <span class="literal">null</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>初始化采集次数和cookie后，内容页就简单了，</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">string</span> enc = task.PageContent.PageEncode;</div><div class="line"><span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrWhiteSpace(enc))</div><div class="line">    enc = task.DefaultEncode;</div><div class="line"><span class="keyword">if</span> (task.HasCookie &amp;&amp; siteTakeCookie[task.TaskName] == <span class="literal">null</span>)</div><div class="line">    siteTakeCookie[task.TaskName] = RequestManager.GetCooKie(task.CheckLogin.LoginUrl, task.CheckLogin.LoginData);</div><div class="line"><span class="keyword">var</span> content = RequestManager.GetPage(item.Location, enc, siteTakeCookie[task.TaskName]);</div><div class="line"><span class="keyword">if</span> (!<span class="keyword">string</span>.IsNullOrWhiteSpace(content))</div><div class="line">&#123;</div><div class="line">    <span class="keyword">bool</span> flag = <span class="literal">true</span>;</div><div class="line">    <span class="keyword">if</span> (task.HasCookie &amp;&amp; content.IndexOf(task.CheckLogin.LoginMark) &lt; <span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">        flag = <span class="literal">false</span>;</div><div class="line">        siteTakeCount[task.TaskName] = <span class="number">0</span>;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (task.PageContent.IsSaveAsFile)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 保存到本地</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (task.PageContent.IsSaveDataBase)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 写入数据库</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (flag)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 更新状态，显示已采集</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">else</span></div><div class="line">&#123;</div><div class="line">    SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"【&#123;0&#125;】-【&#123;1&#125;】无法获取到页面内容，地址：&#123;2&#125;"</span>, item.TaskName, item.Title, item.Location), LogType.Logger, LogLevelType.Error);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样子就ok了，再写两个线程，一个用来采集站点，一个用来下载页面信息</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">takeTaskThread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> ThreadStart(GetStayUrlList));</div><div class="line">takeTaskThread.IsBackground = <span class="literal">true</span>;</div><div class="line">takeTaskThread.Name = <span class="string">"采集地址线程"</span>;</div><div class="line">takeTaskThread.Priority = ThreadPriority.Normal;</div><div class="line">takeTaskThread.Start();</div><div class="line"></div><div class="line">takeSaveThread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> ThreadStart(GetStayPageList));</div><div class="line">takeSaveThread.IsBackground = <span class="literal">true</span>;</div><div class="line">takeSaveThread.Name = <span class="string">"下载页面线程"</span>;</div><div class="line">takeSaveThread.Priority = ThreadPriority.BelowNormal;</div><div class="line">takeSaveThread.Start();</div></pre></td></tr></table></figure>
+<p>程序运行之后，因为配置文件或其他问题，主界面会出現挂掉的问题，<br>这个时候就需要在程序运行前，检查下一些配置文件等，</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">InitFormProgramRunStatus</span>(<span class="params"></span>)</span></div><div class="line">&#123;</div><div class="line">    SetLogInfo(<span class="string">"正在扫描程序配置情况，请稍等~"</span>, LogType.Logger, LogLevelType.Debug);</div><div class="line"></div><div class="line">    <span class="comment">// 数据库配置情况</span></div><div class="line">    <span class="keyword">if</span> (!DataHandled.ConnectionTest())</div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="string">"数据库连接不正确，请先设置数据连接！"</span>, LogType.Logger, LogLevelType.Fatal);</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 采集文件配置情况</span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrWhiteSpace(ConfigManager.TaskConfigPath))</div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="string">"采集站点配置文件路径错误！"</span>, LogType.Logger, LogLevelType.Fatal);</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">string</span>[] files = System.IO.Directory.GetFiles(ConfigManager.TaskConfigPath, <span class="string">"*.xml"</span>);</div><div class="line">    <span class="keyword">if</span> (files.Count() &lt;= <span class="number">0x0</span>)</div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="string">"未找到采集站点配置文件！"</span>, LogType.Logger, LogLevelType.Fatal);</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ConfigManager.CollectTasks = <span class="keyword">new</span> List&lt;Task&gt;();</div><div class="line">    <span class="keyword">string</span> errFile = <span class="keyword">string</span>.Empty;</div><div class="line">    <span class="keyword">try</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">foreach</span> (<span class="keyword">string</span> file <span class="keyword">in</span> files)</div><div class="line">        &#123;</div><div class="line">            errFile = file;</div><div class="line">            Task t = XmlHelper.XmlDeserializeFromFile&lt;Task&gt;(file, Encoding.UTF8);</div><div class="line">            ConfigManager.CollectTasks.Add(t);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span> (Exception ex)</div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"采集站点的配置文件序列化失败！错误文件：&#123;0&#125;，错误代码：&#123;1&#125;"</span>, errFile, ex.Message), LogType.Logger, LogLevelType.Fatal);</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 下载文件配置情况</span></div><div class="line">    <span class="keyword">try</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrWhiteSpace(ConfigManager.SaveFilePath()) || !System.IO.Directory.Exists(ConfigManager.SaveFilePath()))</div><div class="line">        &#123;</div><div class="line">            SetLogInfo(<span class="string">"文件保存路径未找到，或路径配置错误！"</span>, LogType.Logger, LogLevelType.Fatal);</div><div class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">catch</span> (Exception ex)</div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="string">"文件保存路径未找到，或路径配置错误！"</span>, LogType.Logger, LogLevelType.Fatal);</div><div class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    SetLogInfo(<span class="string">"扫描成功~"</span>, LogType.Logger, LogLevelType.Debug);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/09/2016-12-9-网站数据爬取(上)/" rel="next" title="【NET】网站数据爬取 上">
+                <i class="fa fa-chevron-left"></i> 【NET】网站数据爬取 上
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/12/2016-12-12-使用结巴分词检索/" rel="prev" title="【NET】使用结巴分词检索">
+                【NET】使用结巴分词检索 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.jpg"
+               alt="Mandag" />
+          <p class="site-author-name" itemprop="name">Mandag</p>
+           
+              <p class="site-description motion-element" itemprop="description">动漫，美剧，电影爱好者</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mandag</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

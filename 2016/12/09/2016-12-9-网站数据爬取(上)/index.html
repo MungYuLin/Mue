@@ -1,0 +1,681 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近因为工作需要，写了个采集网站数据的小程序。主要功能是首先采集网站列表頁的链接存入数据库（需要排除重复采集的可能），第一次，采集全部，之后只采集最新数据，接着，获取采集到的链接地址，保存页面信息。 程序的主要爬取的数据有两部分，一个是列表的链接，一个是内容页的内容 首先采集网站不可避免的会用到正则表达式，所以就需要在XML中配置每个站点的相关采集信息和正则匹配内容等XML模板文件如下： 1234">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【NET】网站数据爬取 上">
+<meta property="og:url" content="https://mungyulin.github.io/2016/12/09/2016-12-9-网站数据爬取(上)/index.html">
+<meta property="og:site_name" content="Mandag&#39;s Blog">
+<meta property="og:description" content="最近因为工作需要，写了个采集网站数据的小程序。主要功能是首先采集网站列表頁的链接存入数据库（需要排除重复采集的可能），第一次，采集全部，之后只采集最新数据，接着，获取采集到的链接地址，保存页面信息。 程序的主要爬取的数据有两部分，一个是列表的链接，一个是内容页的内容 首先采集网站不可避免的会用到正则表达式，所以就需要在XML中配置每个站点的相关采集信息和正则匹配内容等XML模板文件如下： 1234">
+<meta property="og:updated_time" content="2017-06-25T06:14:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【NET】网站数据爬取 上">
+<meta name="twitter:description" content="最近因为工作需要，写了个采集网站数据的小程序。主要功能是首先采集网站列表頁的链接存入数据库（需要排除重复采集的可能），第一次，采集全部，之后只采集最新数据，接着，获取采集到的链接地址，保存页面信息。 程序的主要爬取的数据有两部分，一个是列表的链接，一个是内容页的内容 首先采集网站不可避免的会用到正则表达式，所以就需要在XML中配置每个站点的相关采集信息和正则匹配内容等XML模板文件如下： 1234">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'BI09G1CGTO',
+      apiKey: '79af29965237da45de18b4a83aeea996',
+      indexName: 'MandagName',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字进行搜索","hits_empty":"找不到关于“ ${query} ”的文章","hits_stats":"共找到 ${hits} 篇文章，花了 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mungyulin.github.io/2016/12/09/2016-12-9-网站数据爬取(上)/"/>
+
+
+
+
+
+  <title> 【NET】网站数据爬取 上 | Mandag's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mandag's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学会生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mungyulin.github.io/2016/12/09/2016-12-9-网站数据爬取(上)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mandag">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/icon.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mandag's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                【NET】网站数据爬取 上
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-09T21:30:00+08:00">
+                2016-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近因为工作需要，写了个采集网站数据的小程序。<br>主要功能是首先采集网站列表頁的链接存入数据库（需要排除重复采集的可能），第一次，采集全部，之后只采集最新数据，接着，获取采集到的链接地址，保存页面信息。</p>
+<p>程序的主要爬取的数据有两部分，一个是列表的链接，一个是内容页的内容</p>
+<p>首先采集网站不可避免的会用到正则表达式，所以就需要在XML中配置每个站点的相关采集信息和正则匹配内容等<br>XML模板文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</div><div class="line">&lt;Task&gt;</div><div class="line">    &lt;!-- 任务名称 --&gt;</div><div class="line">    &lt;TaskName&gt;Mandag&apos;s Blog&lt;/TaskName&gt;</div><div class="line">    &lt;!-- 任务网站 --&gt;</div><div class="line">    &lt;TaskHost&gt;http://mungyulin.github.io/&lt;/TaskHost&gt;</div><div class="line">    &lt;!-- 采集模式 列表(LIST)或逐页(PAGE) --&gt;</div><div class="line">    &lt;!-- 列表对应PageList --&gt;</div><div class="line">    &lt;!-- 逐页对应StartUrl --&gt;</div><div class="line">    &lt;CollectModel&gt;LIST&lt;/CollectModel&gt;</div><div class="line">    &lt;!-- 列表页面编码 --&gt;</div><div class="line">    &lt;DefaultEncode&gt;utf-8&lt;/DefaultEncode&gt;</div><div class="line">    &lt;!-- 请求方式 POST和GET --&gt;</div><div class="line">    &lt;RequestMethod&gt;POST&lt;/RequestMethod&gt;</div><div class="line">    &lt;!-- 是否需要登录 --&gt;</div><div class="line">    &lt;HasCookie&gt;false&lt;/HasCookie&gt;</div><div class="line">    &lt;ListPage&gt;</div><div class="line">        &lt;!-- 提取分页的总记录(Groups[&quot;totalRecord&quot;])和总页数(Groups[&quot;totalPage&quot;]) --&gt;</div><div class="line">        &lt;TotalPageRegex&gt;&lt;/TotalPageRegex&gt;</div><div class="line">        &lt;!-- 计算分页的标识 记录计算(Record)和分页获取(Page) --&gt;</div><div class="line">        &lt;TotalPageMark&gt;Record&lt;/TotalPageMark&gt;</div><div class="line">        &lt;!-- 分页数据结果匹配正则 --&gt;</div><div class="line">        &lt;ContentResultRegex&gt;&lt;/ContentResultRegex&gt;</div><div class="line">        &lt;!-- 提取采集链接(Groups[&quot;url&quot;])和标题(Groups[&quot;text&quot;]) --&gt;</div><div class="line">        &lt;ListPageUrlRegex&gt;&lt;/ListPageUrlRegex&gt;</div><div class="line">    &lt;/ListPage&gt;</div><div class="line">    &lt;CheckLogin&gt;</div><div class="line">        &lt;!-- 登陆页地址 --&gt;</div><div class="line">        &lt;LoginUrl&gt;&lt;/LoginUrl&gt;</div><div class="line">        &lt;!-- 登陆账户提交表单 --&gt;</div><div class="line">        &lt;LoginData&gt;&lt;/LoginData&gt;</div><div class="line">        &lt;!-- 登陆成功，采集内容的标识 --&gt;</div><div class="line">        &lt;LoginMark&gt;&lt;/LoginMark&gt;</div><div class="line">    &lt;/CheckLogin&gt;</div><div class="line">    &lt;PageContent&gt;</div><div class="line">        &lt;!-- 内容页面编码 --&gt;</div><div class="line">        &lt;PageEncode&gt;utf-8&lt;/PageEncode&gt;</div><div class="line">        &lt;!-- 每次采集上限 大于0时，超过次数，自动停止 --&gt;</div><div class="line">        &lt;CollectCountMax&gt;0&lt;/CollectCountMax&gt;</div><div class="line">        &lt;!-- 是否保存为文件 --&gt;</div><div class="line">        &lt;IsSaveAsFile&gt;true&lt;/IsSaveAsFile&gt;</div><div class="line">        &lt;!-- 是否保存到数据库 --&gt;</div><div class="line">        &lt;IsSaveDataBase&gt;true&lt;/IsSaveDataBase&gt;</div><div class="line">        &lt;!-- 页面标题正则 --&gt;</div><div class="line">        &lt;PageTitleRegex&gt;&lt;/PageTitleRegex&gt;</div><div class="line">        &lt;!-- 页面内容正则 --&gt;</div><div class="line">        &lt;PageContentRegex&gt;&lt;/PageContentRegex&gt;</div><div class="line">        &lt;!-- 页面其他信息正则 --&gt;</div><div class="line">        &lt;PageInfoRegex&gt;&lt;/PageInfoRegex&gt;</div><div class="line">    &lt;/PageContent&gt;</div><div class="line">    &lt;Item&gt;</div><div class="line">        &lt;Title&gt;某某分類&lt;/Title&gt;</div><div class="line">        &lt;!-- 是否跳过采集 --&gt;</div><div class="line">        &lt;NotCollect&gt;false&lt;/NotCollect&gt;</div><div class="line">        &lt;!-- 重置采集 --&gt;</div><div class="line">        &lt;ResetCollect&gt;false&lt;/ResetCollect&gt;</div><div class="line">        &lt;!-- 采集地址 --&gt;</div><div class="line">        &lt;Location&gt;&lt;/Location&gt;</div><div class="line">        &lt;!-- 列表地址 --&gt;</div><div class="line">        &lt;PageList&gt;http://mungyulin.github.io/archive?&#123;limit&#125;&amp;amp;&#123;currentPage&#125;&lt;/PageList&gt;</div><div class="line">        &lt;!-- 地址参数 --&gt;</div><div class="line">        &lt;Parameters limit=&apos;100&apos; currentPage=&apos;1&apos; /&gt;</div><div class="line">        &lt;!-- 表单数据 --&gt;</div><div class="line">        &lt;FormDate&gt;&lt;/FormDate&gt;</div><div class="line">    &lt;/Item&gt;</div><div class="line">&lt;/Task&gt;</div></pre></td></tr></table></figure>
+<p>配置文件搞定后，就是解析列表页的链接，把每一页的链接取出來，<br>读取一个配置文件，获取需要采集的站点信息，<br>首先是获取这个站点列表页的初始页面，可以得到总记录数和总页数</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">string</span> page = <span class="keyword">string</span>.Empty;</div><div class="line">Regex regex = <span class="literal">null</span>;</div><div class="line"><span class="keyword">if</span> (!<span class="keyword">string</span>.IsNullOrWhiteSpace(linkItem.ListPage.TotalPageRegex))</div><div class="line">    regex = <span class="keyword">new</span> Regex(linkItem.ListPage.TotalPageRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);</div><div class="line"><span class="keyword">if</span> (linkItem.CollectModel.Equals(<span class="string">"List"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">&#123;</div><div class="line">    <span class="comment">// 地址栏带起始记录数进行获取列表数据</span></div><div class="line">    <span class="keyword">if</span> (linkItem.ListPage.TotalPageMark.Equals(<span class="string">"Record"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (linkItem.RequestMethod.Equals(<span class="string">"Post"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">            page = RequestManager.RequestData(ParaFormat(item.PageList, item.Parameters), item.FormDate, linkItem.DefaultEncode);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            page = RequestManager.GetPage(ParaFormat(item.PageList, item.Parameters), linkItem.DefaultEncode);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 地址栏带页数进行获取列表数据</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (linkItem.ListPage.TotalPageMark.Equals(<span class="string">"Page"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (linkItem.RequestMethod.Equals(<span class="string">"Post"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">            page = RequestManager.RequestData(ParaFormat(item.PageList, item.Parameters), item.FormDate, linkItem.DefaultEncode);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            page = RequestManager.GetPage(ParaFormat(item.PageList, item.Parameters), linkItem.DefaultEncode);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 使用表单提交获取列表数据</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (linkItem.ListPage.TotalPageMark.Equals(<span class="string">"Form"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (linkItem.RequestMethod.Equals(<span class="string">"Post"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">            page = RequestManager.RequestData(item.PageList, ParaFormat(item.FormDate, item.Parameters), linkItem.DefaultEncode);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>得到了总记录数和总页数后，就可以模拟翻页，获取列表链接了，<br>目前网络上的网站列表显示有两种（我只知道两种，不知道的我就不管了╮(╯_╰)╭ ）<br>一种是静态生成，就是一个页面就是一个HTML文件<br>还有一种是动态的，比如通过AJAX获取部分数据并刷新局部页面</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 静态页面 只需考虑页面有列表的情况，沒列表就可以跳出來了</span></div><div class="line"><span class="keyword">string</span> location = item.Location;</div><div class="line"><span class="keyword">int</span> isCount = <span class="number">1</span>;</div><div class="line"><span class="keyword">while</span> (isCount != <span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">    page = RequestManager.GetPage(location, linkItem.DefaultEncode);</div><div class="line">    <span class="keyword">string</span> text = <span class="keyword">string</span>.Empty;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrWhiteSpace(page))</div><div class="line">    &#123;</div><div class="line">        isCount = <span class="number">0</span>;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (!<span class="keyword">string</span>.IsNullOrWhiteSpace(linkItem.ListPage.ContentResultRegex))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">var</span> pageRegex = <span class="keyword">new</span> Regex(linkItem.ListPage.ContentResultRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);</div><div class="line">        Match pageMatch = pageRegex.Match(page);</div><div class="line"></div><div class="line">        text = pageMatch.Value;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"正在采集【&#123;0&#125;】-【&#123;1&#125;】 &#123;2&#125;"</span>, linkItem.TaskName, item.Title, location), LogType.StayTakeSite);</div><div class="line"></div><div class="line">    <span class="keyword">var</span> list = UrlManager.UrlParse(text, item.Location, linkItem.ListPage.ListPageUrlRegex);</div><div class="line">    <span class="keyword">if</span> (list != <span class="literal">null</span> &amp;&amp; list.Any())</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> url <span class="keyword">in</span> list)</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 这里添加到数据库</span></div><div class="line">        &#125;</div><div class="line">        location = <span class="keyword">string</span>.Format(item.StartUrl, isCount);</div><div class="line">        isCount++;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span></div><div class="line">        isCount = <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 动态页面 一定要有总页数</span></div><div class="line">page = page.Replace(<span class="string">"&amp;nbsp;"</span>, <span class="string">" "</span>);</div><div class="line">Match match = regex.Match(page);</div><div class="line"><span class="keyword">if</span> (match.Groups[<span class="string">"totalRecord"</span>].Success)</div><div class="line">&#123;</div><div class="line">    item.Parameters.TotalRecord = e.Convert.ToInt(match.Groups[<span class="string">"totalRecord"</span>].Value);</div><div class="line">&#125;</div><div class="line"><span class="keyword">if</span> (match.Groups[<span class="string">"totalPage"</span>].Success)</div><div class="line">&#123;</div><div class="line">    item.Parameters.TotalPage = e.Convert.ToInt(match.Groups[<span class="string">"totalPage"</span>].Value);</div><div class="line">&#125;</div><div class="line"><span class="keyword">if</span>(match.Groups[<span class="string">"totalRecord"</span>].Success &amp;&amp; !match.Groups[<span class="string">"totalPage"</span>].Success)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// 计算总页数</span></div><div class="line">    <span class="keyword">if</span> (item.Parameters.Limit != <span class="number">0x0</span>)</div><div class="line">    &#123;</div><div class="line">        item.Parameters.TotalPage = item.Parameters.TotalRecord / item.Parameters.Limit;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"【&#123;0&#125;】-【&#123;1&#125;】&#123;2&#125;"</span>, linkItem.TaskName, item.Title, <span class="string">"缺少每页数量的值，无法进行处理！"</span>), LogType.Logger, LogLevelType.Error);</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">// 通过总页数模拟翻页</span></div><div class="line">item.Parameters.CurrentPage = <span class="number">1</span>;</div><div class="line"><span class="keyword">while</span> (item.Parameters.CurrentPage &lt;= item.Parameters.TotalPage)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">string</span> location = <span class="keyword">string</span>.Empty;</div><div class="line">    Regex textRegex = <span class="literal">null</span>;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (!<span class="keyword">string</span>.IsNullOrWhiteSpace(linkItem.ListPage.ContentResultRegex))</div><div class="line">        textRegex = <span class="keyword">new</span> Regex(linkItem.ListPage.ContentResultRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (linkItem.CollectModel.Equals(<span class="string">"List"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (linkItem.ListPage.TotalPageMark.Equals(<span class="string">"Record"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 计算数据的起始记录</span></div><div class="line">            item.Parameters.StartNumber = item.Parameters.Limit * (item.Parameters.CurrentPage - <span class="number">1</span>) + <span class="number">1</span>;</div><div class="line">            item.Parameters.EndNumber = item.Parameters.Limit * item.Parameters.CurrentPage;</div><div class="line">            <span class="keyword">if</span> (item.Parameters.EndNumber &gt; item.Parameters.TotalRecord)</div><div class="line">                item.Parameters.EndNumber = item.Parameters.TotalRecord;</div><div class="line">            location = ParaFormat(item.PageList, item.Parameters);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (linkItem.ListPage.TotalPageMark.Equals(<span class="string">"Page"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">        &#123;</div><div class="line">            location = ParaFormat(item.PageList, item.Parameters);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            location = item.PageList;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (!<span class="keyword">string</span>.IsNullOrWhiteSpace(location))</div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"正在采集【&#123;0&#125;】-【&#123;1&#125;】共&#123;2&#125;页/第&#123;3&#125;页 &#123;4&#125;"</span>, linkItem.TaskName, item.Title, item.Parameters.TotalPage, item.Parameters.CurrentPage, location), LogType.StayTakeSite);</div><div class="line"></div><div class="line">        <span class="keyword">string</span> text = <span class="keyword">string</span>.Empty;</div><div class="line"></div><div class="line">        <span class="comment">// 配置文件中，未配置表单数据</span></div><div class="line">        <span class="comment">// 该站点则为GET进行获取</span></div><div class="line">        <span class="comment">// 否则为POST提交表单数据进行获取</span></div><div class="line">        <span class="keyword">if</span> (linkItem.RequestMethod.Equals(<span class="string">"Post"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">if</span> (linkItem.ListPage.TotalPageMark.Equals(<span class="string">"Record"</span>, StringComparison.OrdinalIgnoreCase))</div><div class="line">            &#123;</div><div class="line">                text = RequestManager.RequestData(location, item.FormDate, linkItem.DefaultEncode);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span></div><div class="line">            &#123;</div><div class="line">                text = RequestManager.RequestData(location, ParaFormat(item.FormDate, item.Parameters), linkItem.DefaultEncode);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            text = RequestManager.GetPage(location, linkItem.DefaultEncode);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!<span class="keyword">string</span>.IsNullOrWhiteSpace(text))</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// 得到筛选A标签的部分文本内容</span></div><div class="line">            <span class="keyword">if</span> (textRegex != <span class="literal">null</span>)</div><div class="line">            &#123;</div><div class="line">                MatchCollection textMatch = textRegex.Matches(text);</div><div class="line">                text = <span class="keyword">string</span>.Empty;</div><div class="line">                <span class="keyword">foreach</span> (Match mc <span class="keyword">in</span> textMatch)</div><div class="line">                &#123;</div><div class="line">                    text += mc.Value;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// 得到待采集站点列表</span></div><div class="line">            <span class="keyword">var</span> list = UrlManager.UrlParse(text, item.Location, linkItem.ListPage.ListPageUrlRegex);</div><div class="line">            <span class="keyword">if</span> (list != <span class="literal">null</span> &amp;&amp; list.Any())</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">foreach</span> (<span class="keyword">var</span> url <span class="keyword">in</span> list)</div><div class="line">                &#123;</div><div class="line">                    <span class="comment">//這裏添加到数据库</span></div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span></div><div class="line">            &#123;</div><div class="line">                SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"【&#123;0&#125;】-【&#123;1&#125;】共&#123;2&#125;页/第&#123;3&#125;页 未提取到a标签！"</span>, linkItem.TaskName, item.Title, item.Parameters.TotalPage, item.Parameters.CurrentPage), LogType.Logger, LogLevelType.Warn);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"【&#123;0&#125;】-【&#123;1&#125;】共&#123;2&#125;页/第&#123;3&#125;页 未读取到数据，无法进行数据采集！"</span>, linkItem.TaskName, item.Title, item.Parameters.TotalPage, item.Parameters.CurrentPage), LogType.Logger, LogLevelType.Error);</div><div class="line">            <span class="keyword">continue</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        SetLogInfo(<span class="keyword">string</span>.Format(<span class="string">"正在采集【&#123;0&#125;】-【&#123;1&#125;】共&#123;2&#125;页/第&#123;3&#125;页 采集地址未定义！"</span>, linkItem.TaskName, item.Title, item.Parameters.TotalPage, item.Parameters.CurrentPage), LogType.Logger, LogLevelType.Warn);</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (item.Parameters.CurrentPage != <span class="keyword">int</span>.MaxValue)</div><div class="line">        item.Parameters.CurrentPage++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>地址采集的OK了，内容页的明天贴。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/21/2016-7-21-Python简单数据爬取/" rel="next" title="【Python】Python简单数据爬取">
+                <i class="fa fa-chevron-left"></i> 【Python】Python简单数据爬取
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/10/2016-12-10-网站数据爬取(下)/" rel="prev" title="【NET】网站数据爬取 上">
+                【NET】网站数据爬取 上 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.jpg"
+               alt="Mandag" />
+          <p class="site-author-name" itemprop="name">Mandag</p>
+           
+              <p class="site-description motion-element" itemprop="description">动漫，美剧，电影爱好者</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mandag</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
